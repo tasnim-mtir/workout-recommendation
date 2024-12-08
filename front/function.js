@@ -23,26 +23,28 @@ function getWorkoutRecommendation() {
     },
     body: JSON.stringify(userDetails)
   })
-  .then(response => response.json())
-  .then(data => {
-    // Process and display the workout plan received from Flask
-    const { BMIcase, RecommendedExercisePlan } = data;
-    botMessage = `Your BMI case is: ${BMIcase}. Here's your recommended workout plan: 
-    Goal: ${RecommendedExercisePlan.Goal},
-    Warm-up: ${RecommendedExercisePlan['Warm-up']},
-    Strength Training: ${RecommendedExercisePlan['Strength Training']},
-    Cardio: ${RecommendedExercisePlan.Cardio},
+    .then(response => response.json())
+    .then(data => {
+      // Process and display the workout plan received from Flask
+      const { BMI, BMIcase, RecommendedExercisePlan } = data;
+      botMessage = `Your BMI is: ${BMI}.<br>
+    Your BMI case is: ${BMIcase}. <br>
+    Here's your recommended workout plan: <br>
+    Goal: ${RecommendedExercisePlan.Goal},<br>
+    Warm-up: ${RecommendedExercisePlan['Warm-up']},<br>
+    Strength Training: ${RecommendedExercisePlan['Strength Training']},<br>
+    Cardio: ${RecommendedExercisePlan.Cardio},<br>
     Cool Down: ${RecommendedExercisePlan['Cool Down']}`;
-    
-    // Add bot response to the messages array and update the UI
-    messages.push("<b>" + botName + ":</b> " + botMessage);
-    updateChatUI();
-  })
-  .catch(error => {
-    botMessage = 'Sorry, there was an error while fetching the recommendation. Please try again later.';
-    messages.push("<b>" + botName + ":</b> " + botMessage);
-    updateChatUI();
-  });
+
+      // Add bot response to the messages array and update the UI
+      messages.push("<b>" + botName + ":</b> " + botMessage);
+      updateChatUI();
+    })
+    .catch(error => {
+      botMessage = 'Sorry, there was an error while fetching the recommendation. Please try again later.';
+      messages.push("<b>" + botName + ":</b> " + botMessage);
+      updateChatUI();
+    });
 }
 
 // Function to update the chat UI with the latest messages
@@ -75,9 +77,6 @@ function newEntry() {
     document.getElementById("chatbox").placeholder = ""; // clear placeholder
     messages.push(lastUserMessage);
 
-    console.log(userDetails);  // Add for debugging
-
-    // Check if the user input matches the command to start the process
     if (step === 0) {
       if (lastUserMessage.toLowerCase().includes('recommend workout')) {
         botMessage = "Please enter your gender (Male/Female)";
@@ -88,36 +87,32 @@ function newEntry() {
         messages.push("<b>" + botName + ":</b> " + botMessage);
       }
     } else if (step === 1) {
-      // Store gender
       userDetails.gender = lastUserMessage;
       botMessage = "Please enter your age";
       messages.push("<b>" + botName + ":</b> " + botMessage);
       step = 2;
     } else if (step === 2) {
-      // Store age
       userDetails.age = parseInt(lastUserMessage);
       botMessage = "Please enter your weight in kg";
       messages.push("<b>" + botName + ":</b> " + botMessage);
       step = 3;
     } else if (step === 3) {
-      // Store weight
       userDetails.weight = parseFloat(lastUserMessage);
-      botMessage = "Please enter your height in meters (e.g., 1.70)";
+      botMessage = "Please enter your height in meters ";
       messages.push("<b>" + botName + ":</b> " + botMessage);
       step = 4;
     } else if (step === 4) {
-      // Store height
       userDetails.height = parseFloat(lastUserMessage);
-      // Log user details before calling the backend
       console.log("User details:", userDetails);
+
       // All details are now collected, call the Flask API for workout recommendation
       getWorkoutRecommendation();
       step = 0; // Reset the process for a new round of recommendations
+      return; // Prevent additional speech calls for this input
     }
 
-    // Update the chat UI with the latest messages
+    // Update the chat UI and call Speech for intermediate steps
     updateChatUI();
-    // Call Speech only after updating the chat UI
     Speech(botMessage);
   }
 }

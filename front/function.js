@@ -27,7 +27,8 @@ function getWorkoutRecommendation() {
     .then(data => {
       // Process and display the workout plan received from Flask
       const { BMI, BMIcase, RecommendedExercisePlan } = data;
-      botMessage = `Your BMI is: ${BMI}.<br>
+      botMessage = `<br>
+    Your BMI is: ${BMI}.<br>
     Your BMI case is: ${BMIcase}. <br>
     Here's your recommended workout plan: <br>
     Goal: ${RecommendedExercisePlan.Goal},<br>
